@@ -1,4 +1,4 @@
-Usage: shaders <glsl-shader-file>
+Usage: `shaders <glsl-shader-file>`
 
 Dependencies: CMake, SDL2, OpenGL
 
