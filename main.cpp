@@ -11,9 +11,9 @@
 
 int main (int argc, char ** argv)
 {
-	if (argc != 2)
+	if (argc < 2)
 	{
-		std::cerr << "Usage: " << argv[0] << " <shader-file>" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " <shader-file-1> [<shader-file-2> ...]" << std::endl;
 		return 1;
 	}
 
@@ -25,7 +25,7 @@ int main (int argc, char ** argv)
 
 	GLenum shader_program = 0;
 	
-	std::string saved_source;
+	std::vector<std::string> saved_source;
 
 	GLint time_location = -1;
 	GLint mouse_location = -1;
@@ -34,15 +34,17 @@ int main (int argc, char ** argv)
 	{
 		char const * common = "varying vec2 position;\nuniform float time;uniform vec2 mouse;\n";
 
-		std::string shader_text;
+		std::vector<std::string> source;
+		for (int i = 1; i < argc; ++i)
 		{
-			std::ifstream ifs(argv[1]);
+			std::ifstream ifs(argv[i]);
 			std::ostringstream oss;
 			oss << ifs.rdbuf();
-			shader_text = oss.str();
+			source.push_back(oss.str());
 		}
-		if (saved_source == shader_text) return;
-		saved_source = shader_text;
+
+		if (saved_source == source) return;
+		saved_source = source;
 
 		if (shader_program)
 			glDeleteProgram(shader_program);
@@ -66,8 +68,12 @@ int main (int argc, char ** argv)
 		GLenum fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);	
 		{
 			char const * s = "void main ( ) { gl_FragColor = color(); }";
-			char const * source[] = {common, shader_text.c_str(), s};
-			glShaderSource(fragment_shader, 3, source, nullptr);
+			std::vector<char const *> src;
+			src.push_back(common);
+			for (auto const & str : source)
+				src.push_back(str.c_str());
+			src.push_back(s);
+			glShaderSource(fragment_shader, src.size(), src.data(), nullptr);
 		}
 		glCompileShader(fragment_shader);
 		{
