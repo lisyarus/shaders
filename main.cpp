@@ -135,6 +135,12 @@ int main (int argc, char ** argv)
 			case SDLK_l:
 				reload();
 				break;
+			case SDLK_r:
+				cx = 0.0;
+				cy = 0.0;
+				scale = 1.0;
+				rscale = 1.0;
+				break;
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
